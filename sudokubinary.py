@@ -113,6 +113,61 @@ def check_values_played(position, grid):
         found_items = [ a or b or c or d for a, b, c, d in zip(line_item, column_item, region_item, found_items)]
         
     return found_items
+
+def __is_item_set__(item):
+    for i in range(0,9):
+        if item[i] is True:
+            return True
+    return False
+
+def check_win(grid):
+  """
+  Check if the board is complete and if it was a win or failute.
+  Response:
+  (0, 0) => incomplete, possible.
+  (1, 0) => complete, correct.
+  (x, 1) => incorrect.
+  """
+  output = (1, 0)
+  correct = True
+  complete = True
+  for l in range(0, 9):
+    for c in range(0, 9):
+      col = ((l % 3) * 3) + (c % 3)
+      lin = ((l / 3) * 3 ) + (c / 3)
+
+      line_items = [False, False, False, False, False, False, False, False, False]
+      column_items = [False, False, False, False, False, False, False, False, False]
+      region_items = [False, False, False, False, False, False, False, False, False]
+
+      for ind in range(0, 9):
+        #print 'line l=', l, 'c=', c, 'ind=', ind
+        #TODO: move this to a distinct function
+        if grid[l][c][ind] is True and line_items[ind] is True:
+            return (0, 1)
+        elif line_items[ind] is False:
+            line_items[ind] = True
+        
+        if grid[c][l][ind] is True and column_items[ind] is True:
+            return (0, 1)
+        elif column_items[ind] is False:
+            column_items[ind] = True
+
+        if grid[lin][col][ind] is True and region_items[ind] is True:
+            return (0, 1)
+        elif region_items[ind] is False:
+            region_items[ind] = True
+        
+        if complete is True:
+            if __is_item_set__(grid[l][c]) is False or __is_item_set__(grid[c][l]) is False or __is_item_set__(grid[lin][col]) is False:
+                #print 'incomplete l=', l, 'c=', c, 'ind=', ind
+                #print 'grid[l][c][ind]', grid[l][c][ind]
+                #print 'grid[c][l][ind]', grid[c][l][ind]
+                #print 'grid[lin][col][ind]', grid[lin][col][ind]
+                complete = False
+
+  output = (1 if complete else 0, 0)
+  return output
     
 def post_value(value, position, grid):
     """
@@ -166,6 +221,13 @@ def next_steps(step):
                     steps.append(Step(grid, step.distance + 1))
     return steps
 
+def append_steps(steps, step_list):
+    if steps is not None and steps.__len__() > 0:
+        for step in steps:
+            if not step_list.__contains__(step):
+                step_list.append(step)
+        step_list.sort()
+
 class Step:
     """
     Defines each step in the process of finding the solution for sudoku game.
@@ -189,4 +251,48 @@ class Step:
     
     def __hash__(self):
         return hash(''.join(str(e) for e in self.grid))
+
+    def cmp(a, b):
+        if a.distance > b.distance:
+            return -1
+        elif a.distance == b.distance:
+            return 0
+        else:
+            return 1
+
+class Solver:
+    """
+    Solves a sudoku game.
+    """
+
+    def __init__(self, grid):
+        step = Step(grid, 0)
+        self.to_visit = [step]
+        self.visited = []
+
+    def iterate_step(self):
+        if self.to_visit.__len__() == 0:
+            #Unsolvable
+            return 0
+        current = self.to_visit.pop()
+        curr_result = check_win(current.grid)
+        if curr_result == (1,0):
+            return current
+        if curr_result == (0, 0):
+            n_steps = next_steps(current)
+            append_steps(n_steps, self.to_visit)
+        return None
+
+    def solve(self):
+        while self.to_visit.__len__() > 0:
+            response = self.iterate_step()
+            if response == 0:
+                print "There is no solution for this game."
+                return 0
+            if response is not None:
+                print "Solution found"
+                return response
+
+
+
 
