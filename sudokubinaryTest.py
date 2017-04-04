@@ -125,10 +125,6 @@ class SudokumamagerTestCase(unittest.TestCase):
       bin_a = sb.to_binary_grid(a)
       curr = sb.Step(bin_a, 0)
       ns = sb.next_steps(curr)
-      # print ns
-      # for st in ns:
-      #     print "======="
-      #     print sb.__get_decimal_grid__(st.grid)
       self.assertTrue(ns[0].grid[0][8] == sb.get_binary_array(4))
 
     def test_solve_final_valid_grid(self):
@@ -150,7 +146,7 @@ class SudokumamagerTestCase(unittest.TestCase):
       self.assertTrue(solution.grid[0][8] == sb.get_binary_array(4))
 
 
-    def test_solve_final_one_setep_grid(self):
+    def test_solve_final_one_step_grid(self):
       a = [[7, 2, 5, 3, 8, 6, 9, 1, 0],
         [8, 4, 3, 1, 2, 9, 7, 5, 6],
         [9, 6, 1, 5, 7, 4, 3, 8, 2],
@@ -167,6 +163,35 @@ class SudokumamagerTestCase(unittest.TestCase):
       print "Solution: ", solution
       print sb.__get_decimal_grid__(solution.grid)
       self.assertTrue(solution.grid[0][8] == sb.get_binary_array(4))
+
+    def test_solve_some_missing_grid(self):
+      expected_base10 = [[7, 2, 5, 3, 8, 6, 9, 1, 4],
+        [8, 4, 3, 1, 2, 9, 7, 5, 6],
+        [9, 6, 1, 5, 7, 4, 3, 8, 2],
+        [4, 3, 9, 2, 5, 1, 8, 6, 7],
+        [1, 7, 2, 4, 6, 8, 5, 3, 9],
+        [6, 5, 8, 7, 9, 3, 2, 4, 1],
+        [5, 9, 6, 8, 4, 7, 1, 2, 3],
+        [3, 8, 7, 6, 1, 2, 4, 9, 5],
+        [2, 1, 4, 9, 3, 5, 6, 7, 8]]
+      expected = sb.to_binary_grid(expected_base10)
+
+      a = [[7, 2, 5, 0, 8, 6, 9, 1, 0],
+        [8, 4, 3, 1, 2, 9, 7, 5, 6],
+        [9, 6, 1, 0, 7, 4, 3, 8, 2],
+        [4, 3, 9, 2, 5, 1, 8, 6, 7],
+        [1, 7, 2, 4, 6, 8, 5, 3, 9],
+        [6, 5, 8, 7, 9, 0, 2, 4, 1],
+        [5, 0, 6, 8, 4, 7, 1, 2, 3],
+        [3, 8, 0, 6, 1, 2, 4, 0, 5],
+        [2, 1, 4, 9, 3, 5, 6, 7, 8]]
+
+      bin_a = sb.to_binary_grid(a)
+      solver = sb.Solver(bin_a)
+      solution = solver.solve()
+      print "Solution: ", solution
+      print sb.__get_decimal_grid__(solution.grid)
+      self.assertEquals(expected, solution.grid)
 
 if __name__ == '__main__':
     unittest.main()

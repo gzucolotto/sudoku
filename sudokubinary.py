@@ -160,10 +160,6 @@ def check_win(grid):
         
         if complete is True:
             if __is_item_set__(grid[l][c]) is False or __is_item_set__(grid[c][l]) is False or __is_item_set__(grid[lin][col]) is False:
-                #print 'incomplete l=', l, 'c=', c, 'ind=', ind
-                #print 'grid[l][c][ind]', grid[l][c][ind]
-                #print 'grid[c][l][ind]', grid[c][l][ind]
-                #print 'grid[lin][col][ind]', grid[lin][col][ind]
                 complete = False
 
   output = (1 if complete else 0, 0)
